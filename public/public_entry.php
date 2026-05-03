@@ -7,6 +7,36 @@ error_reporting(E_ALL);
 $url = isset($_GET['url']) ? $_GET['url'] : 'home';
 
 switch ($url) {
+    case 'users':
+    require_once '../app/controllers/AdminUserController.php';
+    $app = new AdminUserController();
+    $app->index();
+    break;
+
+    case 'user-edit':
+    require_once '../app/controllers/AdminUserController.php';
+    $app = new AdminUserController();
+    $app->edit();
+    break;
+
+    case 'user-update':
+    require_once '../app/controllers/AdminUserController.php';
+    $app = new AdminUserController();
+    $app->update();
+    break;
+
+    case 'user-lock':
+    require_once '../app/controllers/AdminUserController.php';
+    $app = new AdminUserController();
+    $app->lock();
+    break;
+
+    case 'user-reset':
+    require_once '../app/controllers/AdminUserController.php';
+    $app = new AdminUserController();
+    $app->resetPassword();
+    break;
+
     case 'home':
         require_once '../app/controllers/HomeController.php';
         $app = new HomeController();

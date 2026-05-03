@@ -16,7 +16,11 @@ switch ($url) {
     case 'login':
         require_once '../app/controllers/AuthController.php';
         $app = new AuthController();
-        $app->login();
+        if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+            $app->showLogin(); // Phải gọi hàm hiển thị view[cite: 11]
+        } else {
+            $app->login(); // Xử lý khi nhấn nút Login (POST)[cite: 11]
+        }
         break;
 
     // Các trang menu khác dùng chung 1 Controller tạm thời

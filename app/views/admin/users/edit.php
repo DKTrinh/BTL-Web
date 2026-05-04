@@ -16,8 +16,8 @@
 
 <label>Role</label>
 <select name="role">
-<option value="admin">Admin</option>
-<option value="user">User</option>
+<option value="admin" <?= $user['role']=='admin'?'selected':'' ?>>Admin</option>
+<option value="user" <?= $user['role']=='user'?'selected':'' ?>>User</option>
 </select>
 
 <br><br>

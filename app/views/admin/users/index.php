@@ -17,16 +17,13 @@
 <td><?= $u['username'] ?></td>
 <td><?= $u['email'] ?></td>
 
-<td>
-<?= $u['status'] 
-? 'Active'
-: 'Locked' ?>
-</td>
+<td><?= $u['status'] ? 'Active' : 'Locked' ?></td>
 
 <td>
 <a href="public_entry.php?url=user-edit&id=<?= $u['id'] ?>">Edit</a>
 
-<a href="public_entry.php?url=user-lock&id=<?= $u['id'] ?>">Lock</a>
+<a href="public_entry.php?url=user-lock&id=<?= $u['id'] ?>"
+onclick="return confirm('Lock user?')">Lock</a>
 
 <form action="public_entry.php?url=user-reset" method="POST" style="display:inline;">
 <input type="hidden" name="id" value="<?= $u['id'] ?>">

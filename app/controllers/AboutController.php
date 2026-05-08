@@ -1,5 +1,10 @@
 <?php
 class AboutController {
+
+    private $db;
+    public function __construct($db) {
+        $this->db = $db;
+    }
     public function index() {
         // Có thể lấy dữ liệu từ Model ở đây nếu cần
         require_once '../app/views/layouts/header.php';

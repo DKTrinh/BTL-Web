@@ -116,7 +116,7 @@
                             <div class="d-flex justify-content-between align-items-center mb-4">
                                 <div class="form-check">
                                     <input class="form-check-input" type="checkbox" name="remember" id="remember">
-                                    <label class="form-check-label small text-muted" for="remember">Ghi nhớ tôi</label>
+                                    <label class="form-check-label small text-muted" for="remember">Ghi nhớ mật khẩu</label>
                                 </div>
                                 <a href="#" class="small text-decoration-none fw-bold">Quên mật khẩu?</a>
                             </div>

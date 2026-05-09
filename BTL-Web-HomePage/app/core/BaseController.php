@@ -14,7 +14,7 @@ class BaseController {
      * @param array $data Dữ liệu truyền từ Controller ra ngoài View
      */
     public function render($viewPath, $data = []) {
-        // Tự động giải nén mảng data thành các biến độc lập (VD: $data['newsList'] -> biến $newsList)
+        
         if (!empty($data)) {
             extract($data);
         }
@@ -22,11 +22,11 @@ class BaseController {
         $file = __DIR__ . "/../views/" . $viewPath . ".php";
         
         if (file_exists($file)) {
-            // Kiểm tra xem đây là view của Admin hay Client
+            
             $isAdminView = strpos($viewPath, 'admin/') !== false;
 
             if (!$isAdminView) {
-                // Load Header cho Client
+                
                 require_once __DIR__ . '/../views/layouts/header.php';
             } else {
                 // Nếu bạn có Header riêng cho Admin thì require ở đây

@@ -62,11 +62,22 @@ CREATE TABLE IF NOT EXISTS news (
 );
 
 -- ==============================================
+-- 5. TẠO BẢNG HỎI ĐÁP (FAQS)
+-- ==============================================
+CREATE TABLE IF NOT EXISTS faqs (
+    f_id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    question TEXT NOT NULL,
+    answer TEXT, -- Để trống cho đến khi Admin trả lời
+    status ENUM('pending', 'answered') DEFAULT 'pending',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ==============================================
 -- ĐỔ DỮ LIỆU MẪU ĐỂ TEST
 -- ==============================================
 
--- Thêm 2 tài khoản test (Mật khẩu của cả 2 đều là: password)
--- Hash BCRYPT dưới đây là mã hóa chuẩn của chuỗi "password"
+-- Thêm tài khoản test
 INSERT INTO users (fullname, email, password, role, status) VALUES
 ('Quản trị viên', 'admin@gmail.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin', 1),
 ('Khách hàng', 'user@gmail.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'client', 1);
@@ -76,15 +87,19 @@ INSERT INTO categories (name, slug) VALUES ('Flue Gas Treatment', 'flue-gas-trea
 
 -- Thêm sản phẩm
 INSERT INTO products (category_id, name, description, efficiency) VALUES
-(1, 'Electrostatic Precipitation', 'High-efficiency particle removal using electrostatic forces to capture fine particulates.', '99.8%'),
-(1, 'Wet Scrubbing Systems', 'Liquid-based absorption technology for removing acidic gases and soluble pollutants.', '98.5%'),
-(1, 'Selective Catalytic Reduction', 'Advanced catalytic process for converting nitrogen oxides into harmless nitrogen and water vapor.', '95.0%'),
-(1, 'Fabric Filtration', 'Baghouse technology using specialized filter media to capture particulate matter.', '99.9%');
+(1, 'Electrostatic Precipitation', 'High-efficiency particle removal...', '99.8%'),
+(1, 'Wet Scrubbing Systems', 'Liquid-based absorption technology...', '98.5%'),
+(1, 'Selective Catalytic Reduction', 'Advanced catalytic process...', '95.0%'),
+(1, 'Fabric Filtration', 'Baghouse technology...', '99.9%');
 
 -- Thêm bài viết
 INSERT INTO news (title, badge, category, content, image) VALUES
-('Global Energy Corp', '45% reduction in emissions', 'Power Generation', 'Implemented comprehensive flue gas treatment system across 3 coal-fired power plants.', 'https://images.unsplash.com/photo-1532996122724-e3c354a0b15b'),
-('SteelTech Industries', '60% NOx reduction', 'Steel Manufacturing', 'Retrofitted existing facilities with SCR technology, dramatically improving air quality.', 'https://images.unsplash.com/photo-1581094288338-2314dddb7ece'),
-('Maritime Solutions Ltd', 'IMO 2020 Compliance', 'Shipping', 'Deployed compact scrubber systems across fleet of 50 vessels, ensuring full regulatory compliance.', 'https://images.unsplash.com/photo-1494412574643-ff11b0a5c1c3');
+('Global Energy Corp', '45% reduction', 'Power Generation', 'Implemented flue gas treatment...', 'https://images.unsplash.com/photo-1532996122724-e3c354a0b15b'),
+('SteelTech Industries', '60% NOx reduction', 'Steel Manufacturing', 'Retrofitted facilities...', 'https://images.unsplash.com/photo-1581094288338-2314dddb7ece');
+
+-- Thêm dữ liệu FAQ mẫu
+INSERT INTO faqs (title, question, answer, status) VALUES
+('Hiệu suất AIoT', 'Hệ thống AIoT giúp tối ưu hóa việc lọc khí như thế nào?', 'AIoT tự động phân tích dữ liệu cảm biến để điều chỉnh lưu lượng lọc theo thời gian thực.', 'answered'),
+('Bảo trì hệ thống', 'Bao lâu thì cần bảo trì hệ thống lọc túi vải?', NULL, 'pending');
 
 SET FOREIGN_KEY_CHECKS = 1;

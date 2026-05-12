@@ -66,6 +66,14 @@ switch ($url) {
         (new FaqController($db))->index();
         break;
 
+    case 'faq/request':
+        require_once '../app/controllers/FaqController.php';
+        $app = new FaqController($db);
+        $app->storeRequest(); 
+        // BẮT BUỘC có exit ở đây để không bị dính HTML của phần default
+        exit; 
+        break;
+    
     // Các trang bổ sung từ menu Header để tránh 404
     case 'solutions':
     case 'technology':

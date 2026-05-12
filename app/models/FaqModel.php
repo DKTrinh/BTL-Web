@@ -3,46 +3,65 @@
 class FaqModel {
     private $db;
 
-    public function __construct() {
-        // Giả sử bạn có file config kết nối database
-        global $conn; 
-        $this->db = $conn;
+    public function __construct($db) {
+        $this->db = $db;
     }
 
-    public function getAll() {
-        $sql = "SELECT * FROM faqs ORDER BY id DESC";
-        return mysqli_query($this->db, $sql);
+    // Lấy FAQ đã trả lời cho Frontend
+    public function getAnswered() {
+        // Dùng PDO query thay vì mysqli_query
+        $sql = "SELECT * FROM faqs WHERE status = 'answered' ORDER BY f_id DESC";
+        $stmt = $this->db->query($sql);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function getWithPagination($limit, $offset) {
-        $sql = "SELECT * FROM faqs ORDER BY id DESC LIMIT $limit OFFSET $offset"; 
-        return mysqli_query($this->db, $sql);
+    // Lấy dữ liệu cho Admin (có phân trang và lọc theo trạng thái)
+    public function getWithPagination($limit, $offset, $status = null) {
+        $where = $status ? "WHERE status = :status" : "";
+        $sql = "SELECT * FROM faqs $where ORDER BY f_id DESC LIMIT :limit OFFSET :offset"; 
+        
+        $stmt = $this->db->prepare($sql);
+        if ($status) $stmt->bindValue(':status', $status);
+        $stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', (int)$offset, PDO::PARAM_INT);
+        $stmt->execute();
+        
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function countAll() {
-        $sql = "SELECT COUNT(*) as total FROM faqs";
-        $result = mysqli_query($this->db, $sql);
-        return mysqli_fetch_assoc($result)['total'];
+    public function countAll($status = null) {
+        $where = $status ? "WHERE status = :status" : "";
+        $sql = "SELECT COUNT(*) FROM faqs $where";
+        
+        $stmt = $this->db->prepare($sql);
+        if ($status) $stmt->bindValue(':status', $status);
+        $stmt->execute();
+        
+        return $stmt->fetchColumn();
     }
 
-    public function insert($question, $answer) {
-        $sql = "INSERT INTO faqs (question, answer) VALUES (?, ?)";
-        $stmt = mysqli_prepare($this->db, $sql);
-        mysqli_stmt_bind_param($stmt, "ss", $question, $answer);
-        return mysqli_stmt_execute($stmt);
+    public function getById($f_id) {
+        $stmt = $this->db->prepare("SELECT * FROM faqs WHERE f_id = ?");
+        $stmt->execute([$f_id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    public function update($id, $question, $answer) {
-        $sql = "UPDATE faqs SET question = ?, answer = ? WHERE id = ?";
-        $stmt = mysqli_prepare($this->db, $sql);
-        mysqli_stmt_bind_param($stmt, "ssi", $question, $answer, $id);
-        return mysqli_stmt_execute($stmt);
+    // app/models/FaqModel.php
+    public function insert($title, $question) {
+        // Đảm bảo tên bảng là 'faqs' và các cột khớp với database
+        $sql = "INSERT INTO faqs (title, question, status) VALUES (?, ?, 'pending')";
+        $stmt = $this->db->prepare($sql);
+        return $stmt->execute([$title, $question]);
     }
 
-    public function delete($id) {
-        $sql = "DELETE FROM faqs WHERE id = ?";
-        $stmt = mysqli_prepare($this->db, $sql);
-        mysqli_stmt_bind_param($stmt, "i", $id);
-        return mysqli_stmt_execute($stmt);
+    public function update($f_id, $title, $question, $answer, $status) {
+        $sql = "UPDATE faqs SET title = ?, question = ?, answer = ?, status = ? WHERE f_id = ?";
+        $stmt = $this->db->prepare($sql);
+        return $stmt->execute([$title, $question, $answer, $status, $f_id]);
+    }
+
+    public function delete($f_id) {
+        $stmt = $this->db->prepare("DELETE FROM faqs WHERE f_id = ?");
+        return $stmt->execute([$f_id]);
     }
 }

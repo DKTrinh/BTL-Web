@@ -49,13 +49,11 @@ class UserModel {
     // DÀNH CHO KHÁCH HÀNG TỰ ĐĂNG KÝ
     // ==========================================
     public function registerUser($fullname, $email, $password) {
-        // Mã hóa mật khẩu an toàn
-        $hash = password_hash($password, PASSWORD_BCRYPT);
-        
-        // Mặc định khách hàng tự đăng ký sẽ có role là 'client' và status là 1 (Hoạt động)
-        $stmt = $this->db->prepare("INSERT INTO users (fullname, email, password, role, status) VALUES (?, ?, ?, 'client', 1)");
-        return $stmt->execute([$fullname, $email, $hash]);
-    }
+    // $password ở đây đã được Controller băm sẵn rồi, KHÔNG băm thêm nữa!
+    $sql = "INSERT INTO users (fullname, email, password, role, status) VALUES (?, ?, ?, 'client', 1)";
+    $stmt = $this->db->prepare($sql);
+    return $stmt->execute([$fullname, $email, $password]);
+}
 
     // ==========================================
     // ADMIN: CÁC HÀM QUẢN TRỊ

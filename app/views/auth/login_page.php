@@ -2,18 +2,30 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Login - CleanTech</title>
+    <title>Login - TechZone</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body { background: linear-gradient(135deg, #a7b8e1 0%, #c4c1e0 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; font-family: 'Inter', sans-serif; margin: 0; }
         .auth-card { background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 25px 50px rgba(0,0,0,0.15); max-width: 900px; width: 100%; }
         .auth-left { background: linear-gradient(180deg, #1e3c72 0%, #2a5298 100%); color: white; padding: 60px 50px; position: relative; }
         .auth-left::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: url('https://images.unsplash.com/photo-1557682250-33bd709cbe85') center/cover; opacity: 0.2; mix-blend-mode: overlay; }
         .auth-left-content { position: relative; z-index: 1; }
-        .auth-right { padding: 60px 50px; background: #ffffff; }
+        .auth-right { padding: 40px 50px; background: #ffffff; }
         .form-control { background: #f4f6fa; border: none; padding: 12px 20px; border-radius: 8px; margin-bottom: 20px; font-size: 0.95rem; }
+        .form-control:focus { background: #f0f2f7; box-shadow: none; border: 1px solid #3b82f6; }
         .btn-primary-custom { background: linear-gradient(90deg, #38bdf8 0%, #3b82f6 100%); color: white; border: none; padding: 14px; border-radius: 8px; font-weight: bold; width: 100%; transition: 0.3s; }
+        .btn-primary-custom:hover { opacity: 0.9; transform: translateY(-1px); }
         .btn-outline-custom { background: #ffffff; color: #3b82f6; border: 1px solid #e2e8f0; padding: 14px; border-radius: 8px; font-weight: bold; width: 100%; text-decoration: none; display: block; text-align: center; }
+        .btn-outline-custom:hover { background: #f8fafc; }
+        
+        /* Giao diện khu vực Tài khoản mẫu */
+        .demo-account-box { background-color: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 12px; padding: 15px; margin-top: 25px; }
+        .demo-badge { font-size: 0.75rem; font-weight: bold; padding: 4px 8px; border-radius: 6px; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 5px; }
+        .demo-badge-admin { background-color: #fee2e2; color: #ef4444; border: 1px solid #fca5a5; }
+        .demo-badge-admin:hover { background-color: #fca5a5; color: #fff; }
+        .demo-badge-client { background-color: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; }
+        .demo-badge-client:hover { background-color: #bae6fd; color: #fff; }
     </style>
 </head>
 <body>
@@ -26,36 +38,69 @@
                         <div class="mb-5 d-flex align-items-center fw-bold">
                             <a href="?url=home" class="text-white text-decoration-none fs-5">
                                 <span style="background: white; width: 12px; height: 12px; border-radius: 50%; display: inline-block; margin-right: 8px;"></span> 
-                                CLEAN TECH
+                                TECH ZONE
                             </a>
                         </div>
                         <h1 class="fw-bold display-5 mb-4" id="welcome-title">Hello,<br>welcome!</h1>
-                        <p class="mb-5 text-white-50 small" id="welcome-text">Advanced emission control systems for industrial operations worldwide.</p>
+                        <p class="mb-5 text-white-50 small" id="welcome-text">Advanced technology products and smart industrial solutions for operations worldwide.</p>
                         <a href="?url=home" class="btn btn-outline-light rounded-pill px-4 py-2" style="font-size: 0.85rem;">Back to home</a>
                     </div>
                 </div>
 
-                <div class="col-md-6 auth-right">
+                <div class="col-md-6 auth-right d-flex flex-column justify-content-center">
                     <h2 class="fw-bold mb-4">Login</h2>
+                    
                     <form action="public_entry.php?url=login" method="POST">
                         <input type="hidden" name="csrf_token" value="<?= CsrfHelper::generateToken(); ?>">
                         
                         <div class="mb-3">
                             <label class="form-label small text-muted fw-semibold">Email address</label>
-                            <input type="email" name="email" class="form-control" placeholder="name@mail.com" required>
+                            <input type="email" name="email" id="login_email" class="form-control" placeholder="name@mail.com" required>
                         </div>
                         <div class="mb-3">
                             <label class="form-label small text-muted fw-semibold">Password</label>
-                            <input type="password" name="password" class="form-control" placeholder="••••••••••••" required>
+                            <input type="password" name="password" id="login_password" class="form-control" placeholder="••••••••••••" required>
                         </div>
                         
-                        <button type="submit" class="btn-primary-custom">Login</button>
-                        <a href="?url=register" class="btn-outline-custom mt-3" id="to-register">Sign up</a>
+                        <button type="submit" class="btn-primary-custom mb-2">Login</button>
+                        <a href="?url=register" class="btn-outline-custom" id="to-register">Sign up</a>
                     </form>
+
+                    <div class="demo-account-box">
+                        <div class="small fw-bold text-secondary mb-2"><i class="fas fa-magic text-warning me-1"></i> Tài khoản thử nghiệm (Bấm để điền nhanh):</div>
+                        <div class="d-flex flex-wrap gap-2">
+                            <span class="demo-badge demo-badge-admin" onclick="quickFill('admin@gmail.com', '123456')">
+                                <i class="fas fa-user-shield"></i> Admin: admin@gmail.com
+                            </span>
+                            <span class="demo-badge demo-badge-client" onclick="quickFill('user@gmail.com', '123456')">
+                                <i class="fas fa-user"></i> Khách hàng: user@gmail.com
+                            </span>
+                        </div>
+                        <div class="text-muted mt-2" style="font-size: 0.75rem;"><i class="fas fa-info-circle"></i> Mật khẩu mặc định cho cả 2 tài khoản mẫu là: <b>123456</b></div>
+                    </div>
+
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+    // Hàm xử lý điền tự động cực mượt
+    function quickFill(email, password) {
+        document.getElementById('login_email').value = email;
+        document.getElementById('login_password').value = password;
+        
+        // Tạo hiệu ứng highlight nhẹ để báo hiệu cho người dùng biết vừa có thay đổi dữ liệu
+        const inputs = [document.getElementById('login_email'), document.getElementById('login_password')];
+        inputs.forEach(input => {
+            input.style.transition = 'background-color 0.3s';
+            input.style.backgroundColor = '#e0f2fe';
+            setTimeout(() => {
+                input.style.backgroundColor = '#f4f6fa';
+            }, 400);
+        });
+    }
+</script>
 </body>
 </html>

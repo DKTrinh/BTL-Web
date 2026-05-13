@@ -7,7 +7,7 @@ class Database {
         if (self::$connection === null) {
             try {
                 self::$connection = new PDO(
-                    "mysql:host=localhost;dbname=cleantech;charset=utf8",
+                    "mysql:host=localhost;dbname=techzone;charset=utf8",
                     "root",
                     ""
                 );

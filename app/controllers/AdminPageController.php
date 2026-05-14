@@ -20,15 +20,10 @@ public function updateAbout() {
             foreach ($_POST['content'] as $key => $value) {
                 $model->updateContent($key, trim($value));
             }
-            $_SESSION['success_message'] = "Cập nhật nội dung TechZone thành công!";
         }
-        // Sau khi lưu xong, quay về trang sửa để xem kết quả
-        header("Location: public_entry.php?url=admin/about-edit");
-        exit();
-    } else {
-        // Nếu ai đó cố tình vào link này bằng GET, đẩy họ về trang chủ admin
-        header("Location: public_entry.php?url=admin/about-edit");
+        // Quay lại đúng tab About kèm thông báo thành công
+        header("Location: public_entry.php?url=users&tab=about&status=success");
         exit();
     }
-    }
+}
 }

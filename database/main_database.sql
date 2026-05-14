@@ -150,7 +150,7 @@ INSERT INTO comments (user_id, news_id, product_id, content, rating) VALUES
 INSERT INTO page_contents (page_key, section_name, content_value) VALUES 
 ('about_history', 'Tiểu sử & Hình thành', 'TechZone là hệ thống bán lẻ công nghệ hàng đầu...'),
 ('about_mission', 'Sứ mệnh & Tầm nhìn', 'Mang công nghệ đỉnh cao tới mọi nhà...'),
-('about_goal', 'Mục tiêu chiến lược', 'Phủ sóng 63 tỉnh thành...');
+('about_goal', 'Mục tiêu chiến lược', 'Phủ sóng 34 tỉnh thành...');
 
 INSERT INTO faqs (title, question, answer, status) VALUES 
 ('BẢO HÀNH', 'Chính sách bảo hành Laptop Gaming?', 'Bảo hành 12 tháng chính hãng.', 'answered'),

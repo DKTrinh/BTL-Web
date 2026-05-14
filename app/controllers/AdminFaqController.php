@@ -18,12 +18,19 @@ class AdminFaqController {
     }
 
     public function update() {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            (new FaqModel($this->db))->update($_POST['f_id'], $_POST['title'], $_POST['question'], $_POST['answer'], $_POST['status']);
-            header("Location: public_entry.php?url=admin/faq");
-            exit;
-        }
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        (new FaqModel($this->db))->update(
+            $_POST['f_id'], 
+            $_POST['title'], 
+            $_POST['question'], 
+            $_POST['answer'], 
+            $_POST['status']
+        );
+        // Quay lại đúng tab FAQ thay vì rẽ sang trang admin/faq lẻ
+        header("Location: public_entry.php?url=users&tab=faq&status=success");
+        exit;
     }
+}
 
     public function delete() {
         if (isset($_GET['id'])) {

@@ -1,58 +1,97 @@
 <?php
-// app/controllers/NewsController.php
 require_once __DIR__ . '/../core/BaseController.php';
 require_once __DIR__ . '/../models/NewsModel.php';
+require_once __DIR__ . '/../models/CommentModel.php';
 
 class NewsController extends BaseController {
     private $newsModel;
+    private $commentModel;
 
     public function __construct($db) {
         parent::__construct($db);
-        $this->newsModel = new NewsModel($this->db);
+        $this->newsModel = new NewsModel($db);
+        $this->commentModel = new CommentModel($db);
     }
 
-    // Trang chủ tin tức: Hiển thị danh sách, phân trang, tìm kiếm
+    /**
+     * Hiển thị danh sách tin tức (Trang News chính)
+     * Hỗ trợ tính năng tìm kiếm theo từ khóa
+     */
     public function index() {
-        // Lấy tham số từ URL
+        // Lấy từ khóa tìm kiếm từ thanh địa chỉ (nếu có)
         $keyword = isset($_GET['q']) ? trim($_GET['q']) : '';
-        $page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
-        $limit = 6; // Số bài viết trên 1 trang
-
-        // Tính toán phân trang
-        $totalNews = $this->newsModel->countNews($keyword);
-        $totalPages = ceil($totalNews / $limit);
         
-        // Lấy dữ liệu
-        $newsList = $this->newsModel->getPublished($keyword, $page, $limit);
+        if (!empty($keyword)) {
+            // Nếu có từ khóa, gọi hàm tìm kiếm trong Model
+            $newsList = $this->newsModel->search($keyword);
+        } else {
+            // Nếu không, lấy toàn bộ tin tức đã xuất bản
+            $newsList = $this->newsModel->getPublished();
+        }
 
-        // Ném dữ liệu ra View (sử dụng mảng data để bọc lại giống code cũ của bạn)
-        $data = [
-            'newsList'   => $newsList,
-            'keyword'    => $keyword,
-            'page'       => $page,
-            'totalPages' => $totalPages,
-            'totalNews'  => $totalNews
-        ];
-
-        // Do file BaseController có extract($data), ra view bạn có thể gọi $data['newsList'] hoặc $newsList đều được.
-        $this->render('pages/news', ['data' => $data]);
+        $this->render('pages/news', [
+            'newsList' => $newsList,
+            'keyword'  => $keyword,
+            'title'    => 'Tin tức công nghệ - TechZone'
+        ]);
     }
 
-    // Xem chi tiết bài viết
+    /**
+     * Hiển thị chi tiết một bài viết cụ thể
+     * Thực hiện Nhiệm vụ 4: Trang đọc bài viết & Quản lý bình luận trên bài viết
+     */
     public function detail() {
         $id = isset($_GET['id']) ? (int)$_GET['id'] : null;
 
         if (!$id) {
-            $this->redirect('public_entry.php?url=news');
+            header("Location: public_entry.php?url=news");
+            exit;
         }
 
-        $newsItem = $this->newsModel->getById($id);
-        
-        if (!$newsItem) {
-            die("<h1 style='text-align:center; padding: 50px;'>Bài viết không tồn tại.</h1>");
+        // 1. Lấy nội dung bài viết
+        $news = $this->newsModel->getById($id);
+
+        if (!$news) {
+            // Nếu không tìm thấy bài viết, quay lại trang tin tức
+            header("Location: public_entry.php?url=news");
+            exit;
         }
 
-        // Cần tạo thêm file 'app/views/pages/news_detail.php' để hiển thị chi tiết
-        $this->render('pages/news_detail', ['news' => $newsItem]); 
+        // 2. Lấy danh sách bình luận đã được duyệt của bài viết này
+        // (Sử dụng hàm getCommentsByNews trong CommentModel đã tạo)
+        $comments = $this->commentModel->getCommentsByNews($id);
+
+        $this->render('pages/news_detail', [
+            'news'     => $news,
+            'comments' => $comments,
+            'title'    => $news['title']
+        ]);
+    }
+
+    /**
+     * Xử lý thêm bình luận mới từ người dùng
+     */
+    public function addComment() {
+        // Chỉ cho phép gửi qua phương thức POST và phải đăng nhập
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            if (!isset($_SESSION['user_id'])) {
+                // Nếu chưa đăng nhập, thông báo hoặc chuyển hướng
+                header("Location: public_entry.php?url=login");
+                exit;
+            }
+
+            $news_id = isset($_POST['news_id']) ? (int)$_POST['news_id'] : 0;
+            $user_id = $_SESSION['user_id'];
+            $content = isset($_POST['content']) ? trim($_POST['content']) : '';
+
+            if ($news_id > 0 && !empty($content)) {
+                // Lưu bình luận vào database
+                $this->commentModel->addComment($news_id, $user_id, $content);
+            }
+
+            // Quay lại trang chi tiết bài viết sau khi bình luận
+            header("Location: public_entry.php?url=news/detail&id=" . $news_id);
+            exit;
+        }
     }
 }

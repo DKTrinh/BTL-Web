@@ -1,66 +1,56 @@
 <?php
-// app/models/NewsModel.php
-
-// Sửa lại dòng này để trỏ chính xác vào file BaseModel.php
 require_once __DIR__ . '/../core/BaseModel.php';
 
 class NewsModel extends BaseModel {
     protected $table = 'news';
 
-    // 1. Dùng cho trang chủ (HomeController): Fix lỗi Fatal Error
-    public function getSuccessStories($limit = 3) {
-        $sql = "SELECT * FROM news ORDER BY created_at DESC LIMIT $limit";
+    // Lấy tất cả tin tức (mới nhất lên đầu)
+    public function getAllNews() {
+        $sql = "SELECT * FROM news ORDER BY created_at DESC";
         return $this->fetchAll($sql);
     }
 
-    // 2. Dùng cho trang Tin tức: Lấy danh sách kèm phân trang và tìm kiếm
-    public function getPublished($keyword = '', $page = 1, $limit = 6) {
-        $page = max(1, (int)$page); // Đảm bảo trang luôn >= 1
-        $offset = ($page - 1) * $limit;
-        
-        $sql = "SELECT * FROM news WHERE title LIKE ? OR content LIKE ? ORDER BY created_at DESC LIMIT $limit OFFSET $offset";
+    // Lấy tin tức theo ID
+    public function getById($id) {
+        $sql = "SELECT * FROM news WHERE id = ?";
+        return $this->fetch($sql, [$id]);
+    }
+
+    // Tìm kiếm tin tức theo tiêu đề hoặc nội dung
+    public function search($keyword) {
+        $sql = "SELECT * FROM news WHERE title LIKE ? OR content LIKE ? ORDER BY created_at DESC";
         return $this->fetchAll($sql, ["%$keyword%", "%$keyword%"]);
     }
 
-    // 3. Đếm tổng số bài viết để tính số trang (Pagination)
-    public function countNews($keyword = '') {
-        $sql = "SELECT COUNT(*) as total FROM news WHERE title LIKE ? OR content LIKE ?";
-        $result = $this->fetchOne($sql, ["%$keyword%", "%$keyword%"]);
-        return $result['total'] ?? 0;
+    // Thêm tin tức mới
+    public function create($data) {
+        $sql = "INSERT INTO news (title, content, image, category, badge, created_at) 
+                VALUES (?, ?, ?, ?, ?, NOW())";
+        return $this->execute($sql, [
+            $data['title'], 
+            $data['content'], 
+            $data['image'], 
+            $data['category'], 
+            $data['badge']
+        ]);
     }
 
-    // 4. Lấy chi tiết 1 bài viết bằng ID
-    public function getById($id) {
-        $sql = "SELECT * FROM news WHERE id = ?";
-        return $this->fetchOne($sql, [$id]);
+    // Cập nhật tin tức
+    public function update($id, $data) {
+        $sql = "UPDATE news SET title = ?, content = ?, image = ?, category = ?, badge = ? WHERE id = ?";
+        return $this->execute($sql, [
+            $data['title'], 
+            $data['content'], 
+            $data['image'], 
+            $data['category'], 
+            $data['badge'], 
+            $id
+        ]);
     }
 
-    // 5. (Dành cho Admin) Thêm bài viết mới
-    public function addNews($title, $content, $image, $category = 'Công nghệ', $badge = '') {
-        $sql = "INSERT INTO news (title, content, image, category, badge, created_at) VALUES (?, ?, ?, ?, ?, NOW())";
-        return $this->execute($sql, [$title, $content, $image, $category, $badge]);
-    }
-
-    // 6. (Dành cho Admin) Cập nhật bài viết
-    public function updateNews($id, $title, $content, $image, $category, $badge) {
-        $sql = "UPDATE news SET title = ?, content = ?, image = ?, category = ?, badge = ?, updated_at = NOW() WHERE id = ?";
-        return $this->execute($sql, [$title, $content, $image, $category, $badge, $id]);
-    }
-
-    // 7. (Dành cho Admin) Xóa bài viết
-    public function deleteNews($id) {
+    // Xóa tin tức
+    public function delete($id) {
         $sql = "DELETE FROM news WHERE id = ?";
         return $this->execute($sql, [$id]);
-    }
-
-    // Thêm hàm này để xử lý lỗi "Call to undefined method NewsModel::getLatestNews"
-    public function getLatestNews($limit = 3) {
-        // Dùng intval để chống lỗi SQL Injection khi truyền số
-        $limit = (int) $limit;
-        
-        // Sắp xếp bài viết mới nhất lên đầu (dựa vào created_at hoặc id)
-        $sql = "SELECT * FROM news ORDER BY created_at DESC LIMIT $limit";
-        
-        return $this->fetchAll($sql);
     }
 }

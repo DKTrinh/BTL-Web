@@ -38,4 +38,19 @@ return [
         'action'     => 'detail',
         'method'     => ['GET', 'POST'] // Hỗ trợ cả 2 phương thức nếu file router của bạn cho phép mảng
     ]
+    
+    // CONTACT
+    'contact' => [
+        'controller' => 'ContactController',
+        'action'     => 'index',
+        'method'     => 'GET'
+    ],
+
+    // SAVE CONTACT
+    'contact/save' => [
+        'controller' => 'ContactController',
+        'action'     => 'save',
+        'method'     => 'POST'
+    ]
+
 ];

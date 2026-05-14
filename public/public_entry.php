@@ -13,7 +13,7 @@ $url = $_GET['url'] ?? 'home';
 
 switch ($url) {
     // ==========================================
-    // 1. AUTHENTICATION
+    // 1. AUTHENTICATION & PROFILE (Giữ nguyên)
     // ==========================================
     case 'login':
     case 'register':
@@ -25,9 +25,6 @@ switch ($url) {
         else { SessionHelper::destroy(); header('Location: public_entry.php?url=home'); exit; }
         break;
 
-    // ==========================================
-    // 2. USER PROFILE (Đã gộp các khối trùng)
-    // ==========================================
     case 'profile':
     case 'profile-update':
     case 'profile-password':
@@ -43,39 +40,34 @@ switch ($url) {
         break;
 
     // ==========================================
-    // 3. PUBLIC PAGES (Giữ nguyên logic của nhóm)
+    // 2. PUBLIC PAGES (Dành cho khách hàng)
     // ==========================================
     case 'home':
-        require_once '../app/controllers/HomeController.php';
-        (new HomeController($db))->index();
-        break;
     case 'about':
-        require_once '../app/controllers/AboutController.php';
-        (new AboutController($db))->index();
-        break;
     case 'products':
-        require_once '../app/controllers/ProductController.php';
-        (new ProductController($db))->index();
-        break;
     case 'news':
-        require_once '../app/controllers/NewsController.php';
-        (new NewsController($db))->index();
-        break;
     case 'contact':
-        require_once '../app/controllers/ContactController.php';
-        (new ContactController($db))->index();
-        break;
     case 'faqs':
-        require_once '../app/controllers/FaqController.php';
-        (new FaqController($db))->index();
-        break;
     case 'faq/user-request':
-        require_once '../app/controllers/FaqController.php';
-        (new FaqController($db))->userRequest();
+        if ($url === 'home') {
+            require_once '../app/controllers/HomeController.php';
+            (new HomeController($db))->index();
+        } elseif ($url === 'about') {
+            require_once '../app/controllers/AboutController.php';
+            (new AboutController($db))->index();
+        } elseif ($url === 'faqs' || $url === 'faq/user-request') {
+            require_once '../app/controllers/FaqController.php';
+            $faqApp = new FaqController($db);
+            ($url === 'faqs') ? $faqApp->index() : $faqApp->userRequest();
+        } else {
+            $ctrl = ucfirst($url) . 'Controller';
+            require_once "../app/controllers/$ctrl.php";
+            (new $ctrl($db))->index();
+        }
         break;
 
     // ==========================================
-    // 4. ADMIN DASHBOARD (TÍCH HỢP TAB: USERS, FAQ, ABOUT)
+    // 3. QUẢN TRỊ VIÊN (TẬP TRUNG TẠI url=users)
     // ==========================================
     case 'users':
     case 'user-edit':
@@ -83,60 +75,57 @@ switch ($url) {
     case 'user-lock':
     case 'user-reset':
     case 'user-store':
-        // Kiểm tra quyền Admin
         if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') {
             header('Location: public_entry.php?url=home'); exit;
         }
 
         $tab = $_GET['tab'] ?? 'users';
-        
-        // Điều hướng dựa trên Tab hoặc URL hành động
-        if ($tab === 'faq') {
+
+        // 1. Nhánh FAQ
+        if (strpos($tab, 'faq') !== false) {
             require_once '../app/models/FaqModel.php';
-            $faqs = (new FaqModel($db))->getAll();
-            include '../app/views/admin/faq/index.php';
-        } elseif ($tab === 'faq-edit') {
-            require_once '../app/models/FaqModel.php';
-            $faq = (new FaqModel($db))->getById($_GET['id']);
-            include '../app/views/admin/faq/edit.php';
-        } elseif ($tab === 'faq-update' || $url === 'admin/faq/update') {
             require_once '../app/controllers/AdminFaqController.php';
-            (new AdminFaqController($db))->update();
-        } elseif ($tab === 'faq-delete' || $url === 'admin/faq/delete') {
-            require_once '../app/controllers/AdminFaqController.php';
-            (new AdminFaqController($db))->delete();
-        } elseif ($tab === 'about') {
-            require_once '../app/models/PageModel.php';
-            $contents = (new PageModel($db))->getAboutContent();
-            include '../app/views/admin/pages/about_edit.php';
-        } else {
-            // Mặc định nạp Quản lý Thành viên (Giữ nguyên logic của Team)
+            $faqAdmin = new AdminFaqController($db);
+
+            if ($tab === 'faq-edit') {
+                $faq = (new FaqModel($db))->getById($_GET['id']);
+                include '../app/views/admin/faq/edit.php';
+            } elseif ($tab === 'faq-update') {
+                $faqAdmin->update(); // Sẽ redirect về tab=faq
+            } elseif ($tab === 'faq-delete') {
+                $faqAdmin->delete();
+            } else {
+                $faqs = (new FaqModel($db))->getAll();
+                include '../app/views/admin/faq/index.php';
+            }
+        } 
+        // 2. Nhánh Giới thiệu
+        elseif ($tab === 'about' || $tab === 'about-update') {
+            require_once '../app/controllers/AdminPageController.php';
+            $pageAdmin = new AdminPageController($db);
+
+            if ($tab === 'about-update') {
+                $pageAdmin->updateAbout(); // Sẽ redirect về tab=about
+            } else {
+                require_once '../app/models/PageModel.php';
+                $contents = (new PageModel($db))->getAboutContent();
+                include '../app/views/admin/pages/about_edit.php';
+            }
+        }
+        // 3. Nhánh Thành viên (Mặc định)
+        else {
             require_once '../app/controllers/AdminUserController.php';
             $adminApp = new AdminUserController($db);
             if ($url === 'user-lock') $adminApp->lock();
-            elseif ($url === 'user-reset') $adminApp->resetPassword();
-            elseif ($url === 'user-store') $adminApp->store();
             elseif ($url === 'user-update') $adminApp->update();
-            else $adminApp->index(); // Load index.php (users tab)
+            else $adminApp->index();
         }
         break;
 
-    // Giữ lại các route lẻ của thành viên khác nếu họ dùng link trực tiếp
-    case 'admin/about-edit':
+    // Các route bổ sung phục vụ cho các module Admin khác nếu cần
     case 'admin/about-update':
         require_once '../app/controllers/AdminPageController.php';
-        $pageApp = new AdminPageController($db);
-        $url === 'admin/about-edit' ? $pageApp->editAbout() : $pageApp->updateAbout();
-        break;
-
-    case 'solutions':
-    case 'technology':
-    case 'case-studies':
-    case 'team':
-        require_once '../app/controllers/PageController.php';
-        $app = new PageController($db);
-        if ($url === 'solutions') $app->solutions();
-        else $app->technology();
+        (new AdminPageController($db))->updateAbout();
         break;
 
     default:

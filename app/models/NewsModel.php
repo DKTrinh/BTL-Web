@@ -1,4 +1,5 @@
 <?php
+// Bổ sung dòng này để nạp lớp cha BaseModel, sửa lỗi Class Not Found
 require_once __DIR__ . '/../core/BaseModel.php';
 
 class NewsModel extends BaseModel {
@@ -10,18 +11,21 @@ class NewsModel extends BaseModel {
         return $this->fetchAll($sql);
     }
 
-    // Lấy danh sách tin tức mới nhất hiển thị ở trang chủ
+    // Hàm getPublished() đóng vai trò như một bí danh (alias) của getAllNews()
+    public function getPublished() {
+        return $this->getAllNews();
+    }
+
+    // Lấy danh sách tin tức mới nhất cho trang chủ
     public function getLatestNews($limit = 3) {
-        // Sử dụng LIMIT trong SQL, ép kiểu (int) để đảm bảo an toàn dữ liệu
         $sql = "SELECT * FROM news ORDER BY created_at DESC LIMIT " . (int)$limit;
         return $this->fetchAll($sql);
     }
 
     // Lấy tin tức theo ID
     public function getById($id) {
-        // Đã sửa thành fetchOne cho đúng với định nghĩa trong BaseModel.php
         $sql = "SELECT * FROM news WHERE id = ?";
-        return $this->fetchOne($sql, [$id]);
+        return $this->fetch($sql, [$id]);
     }
 
     // Tìm kiếm tin tức theo tiêu đề hoặc nội dung
